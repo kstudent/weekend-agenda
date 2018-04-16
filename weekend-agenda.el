@@ -70,8 +70,6 @@ items if they have an hour specification like [h]h:mm."
       (dotimes (n (1- ndays))
 	(push (1+ (car day-numbers)) day-numbers))
       (setq day-numbers (nreverse day-numbers))
-      ;;not needed at this point.
-      ;;      (setq day-numbers (kree/remove-workdays day-numbers))
       (setq clocktable-start (car day-numbers)
 	    clocktable-end (1+ (or (org-last day-numbers) 0)))
       (setq-local org-starting-day (car day-numbers))
@@ -248,20 +246,37 @@ items if they have an hour specification like [h]h:mm."
     (?q (message "Abort"))
     (key (user-error "Invalid key: %s" key))))
 
-(defun kree/org-agenda-toggle-weekend-or-holiday-mode ()
-  "Toggle weekend-or-holiday-mode."
+(defun kree/org-agenda-toggle-show-free-days ()
+  "Activates / Deactivates filter for agenda to show only free days."
   (interactive)
   (org-agenda-check-type t 'agenda)
-  (setq org-agenda-only-show-weekend-or-holiday (not org-agenda-only-show-weekend-or-holiday))
+
+  (setq org-agenda-only-show-days
+	(if (not (eq org-agenda-only-show-days 'free-days)) 'free-days))
+  
   (org-agenda-redo)
   (org-agenda-set-mode-name)
-  (message "Weekend-or-holiday mode turned %s"
-	   (if org-agenda-only-show-weekend-or-holiday "on" "off")))
+  (message "Only show days: %s"
+	   (if org-agenda-only-show-days org-agenda-only-show-days "show all days")))
 
-(setq org-agenda-only-show-weekend-or-holiday nil)
+(defun kree/org-agenda-toggle-show-work-days ()
+  "Activates / Deactivates filter for agenda to show only work days."
+  (interactive)
+  (org-agenda-check-type t 'agenda)
+
+  (setq org-agenda-only-show-days
+	(if (not (eq org-agenda-only-show-days 'work-days)) 'work-days))
+  
+  (org-agenda-redo)
+  (org-agenda-set-mode-name)
+  (message "Only show days: %s"
+	   (if org-agenda-only-show-days org-agenda-only-show-days "show all days")))
+
+(setq org-agenda-only-show-days nil)
+
 
 (defun kree/holiday-or-weekend-p (rtnall d)
-  (or (not org-agenda-only-show-weekend-or-holiday) (kree/weekend-p d) (kree/holiday-p rtnall)))
+  (or (kree/weekend-p d) (kree/holiday-p rtnall)))
 
 (defun kree/weekend-p (d)
   (memq (calendar-day-of-week (calendar-gregorian-from-absolute d)) org-agenda-weekend-days))
@@ -274,8 +289,7 @@ items if they have an hour specification like [h]h:mm."
   (string-match-p (regexp-quote ":holiday:") item))
 
 (defun kree/add-separator(keep old-keep)
-  (message "keep: %s old-keep: %s" keep old-keep)
-  (if (and org-agenda-only-show-weekend-or-holiday (not old-keep) keep)
+  (if (and (not old-keep) keep)
       (insert "------------------------------------------\n")))
 
 (defun org-agenda-get-day-face (date is-holiday)
@@ -286,3 +300,40 @@ items if they have an hour specification like [h]h:mm."
 	((or (memq (calendar-day-of-week date) org-agenda-weekend-days) is-holiday)
 	 'org-agenda-date-weekend)
 	(t 'org-agenda-date)))
+
+
+
+;; (progn
+;;   (setq state1 nil)
+;;   (toggle-state-a) ;; a
+;;   (toggle-state-b) ;; b
+;;   (toggle-state-b) ;; nil
+;;   (toggle-state-a) ;; a
+;;   )
+
+;; (defun toggle-state-a()
+;;   (setq state1
+;; 	(if (not (eq state1 'a)) 'a))
+;;   (message "state1 is %s" state1)
+;;   )
+
+;; (defun toggle-state-b()
+;;   (setq state1
+;; 	(if (not (eq state1 'b)) 'b))
+;;   (message "state1 is %s" state1)
+
+;;   )
+
+
+
+(defun read-out-of-scope-state()
+  (message "%s" out-of-scope)
+  (setq out-of-scope "flub")
+  (message "%s" out-of-scope)
+  )
+
+(progn
+  (setq out-of-scope "blub")
+  (read-out-of-scope-state)
+  (message "%s" out-of-scope))
+
