@@ -152,6 +152,8 @@ items if they have an hour specification like [h]h:mm."
 	(setq old-skip-day (if (boundp 'skip-day) skip-day))
 	(setq skip-day (kree/holiday-or-weekend-p rtnall d))
 	(kree/add-separator skip-day old-skip-day)
+	(if (and org-agenda-only-show-weekend-or-holiday (not day-numbers) skip-day)
+	    (add-to-list 'day-numbers (+ d 1)))
 	(if (and (or rtnall org-agenda-show-all-dates) skip-day)
 	    (progn
 	      (setq day-cnt (1+ day-cnt))
