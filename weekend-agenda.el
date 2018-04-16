@@ -149,12 +149,14 @@ items if they have an hour specification like [h]h:mm."
 	      (require 'diary-lib)
 	      (setq rtn (org-get-entries-from-diary date))
 	      (setq rtnall (append rtnall rtn))))
-	(setq old-skip-day (if (boundp 'skip-day) skip-day))
-	(setq skip-day (kree/holiday-or-weekend-p rtnall d))
-	(kree/add-separator skip-day old-skip-day)
-	(if (and org-agenda-only-show-weekend-or-holiday (not day-numbers) skip-day)
+	(setq old-keep-day (if (boundp 'keep-day) keep-day))
+	(setq keep-day (kree/holiday-or-weekend-p rtnall d))
+	(kree/add-separator keep-day old-keep-day)
+
+	(if (and org-agenda-only-show-weekend-or-holiday (not day-numbers) keep-day)
 	    (add-to-list 'day-numbers (+ d 1)))
-	(if (and (or rtnall org-agenda-show-all-dates) skip-day)
+	
+	(if (and (or rtnall org-agenda-show-all-dates) keep-day)
 	    (progn
 	      (setq day-cnt (1+ day-cnt))
 	      ;; print header
@@ -271,9 +273,9 @@ items if they have an hour specification like [h]h:mm."
 (defun kree/item-has-tag-p (item)
   (string-match-p (regexp-quote ":holiday:") item))
 
-(defun kree/add-separator(skip old-skip)
-  (message "skip: %s old-skip: %s" skip old-skip)
-  (if (and org-agenda-only-show-weekend-or-holiday (not old-skip) skip)
+(defun kree/add-separator(keep old-keep)
+  (message "keep: %s old-keep: %s" keep old-keep)
+  (if (and org-agenda-only-show-weekend-or-holiday (not old-keep) keep)
       (insert "------------------------------------------\n")))
 
 (defun org-agenda-get-day-face (date is-holiday)
