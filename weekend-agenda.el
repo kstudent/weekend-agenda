@@ -147,12 +147,12 @@ items if they have an hour specification like [h]h:mm."
 	      (require 'diary-lib)
 	      (setq rtn (org-get-entries-from-diary date))
 	      (setq rtnall (append rtnall rtn))))
-	(setq old-keep-day (if (boundp 'keep-day) keep-day))
+	(setq old-keep-day (if (boundp 'keep-day) keep-day t))
 	(setq keep-day (kree/keep-day-p rtnall d))
 	(kree/add-separator keep-day old-keep-day)
 
-	;; (if (and org-agenda-only-show-weekend-or-holiday (not day-numbers) keep-day)
-	;;     (add-to-list 'day-numbers (+ d 1)))
+	(if (and org-agenda-only-show-days (not day-numbers) keep-day)
+	    (add-to-list 'day-numbers (+ d 1)))
 	
 	(if (and (or rtnall org-agenda-show-all-dates) keep-day)
 	    (progn
